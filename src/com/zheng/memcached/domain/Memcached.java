@@ -3,6 +3,12 @@ package com.zheng.memcached.domain;
 import com.danga.MemCached.MemCachedClient;
 import com.danga.MemCached.SockIOPool;
 
+/**
+ * java 连接memcached工具下载地址：
+ * https://github.com/gwhalin/Memcached-Java-Client/downloads
+ * 
+ * @author zhenglian
+ */
 public class Memcached {
 	private static Memcached instance = null;
 
