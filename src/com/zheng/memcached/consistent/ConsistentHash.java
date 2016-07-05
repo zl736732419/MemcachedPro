@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.junit.Test;
-
 public class ConsistentHash implements Distribution {
 
 	private HashFunction hashFun;
@@ -27,6 +25,10 @@ public class ConsistentHash implements Distribution {
 			return null;
 		}
 		long hash = this.hashFun.hashToInt(key);
+		if(hash == -1L) {
+			System.out.println("错误!");
+			return null;
+		}
 		String node = null; 
 		long keyNum = -1;
 		String serverNode = null;
@@ -64,15 +66,23 @@ public class ConsistentHash implements Distribution {
 	public void addNode(String node) {
 		//生成virtualNodeNums个虚拟节点，要求均衡的分布在圆环周围
 		String virtualNodeName = null;
+		long key = -1L;
 		for(int i = 0; i < this.virtualNodeNums; i++) { 
 			virtualNodeName = node + "-" + i;
-			nodes.put(this.hashFun.hashToInt(virtualNodeName), node);
+			key = this.hashFun.hashToInt(virtualNodeName);
+			if(key == -1L) {
+				System.out.println("错误!");
+				return;
+			}
+			nodes.put(key, node);
 		}
 	}
 	
 	
 	public static void main(String[] args) {
-		ConsistentHash hash = new ConsistentHash(new CRC32HashFunction(), 64);
+//		HashFunction hashFun = new CRC32HashFunction();
+		HashFunction hashFun = new MessageDigestHashFunction(MessageDigestHashFunction.ALGORITHM_MD5);
+		ConsistentHash hash = new ConsistentHash(hashFun, 64);
 		hash.addNode("A");
 		hash.addNode("B");
 		hash.addNode("C");
@@ -81,6 +91,10 @@ public class ConsistentHash implements Distribution {
 		
 		String key = "hello";
 		long hashKey = hash.hashFun.hashToInt(key);
+		if(hashKey == -1L) {
+			System.out.println("错误!");
+			return;
+		}
 		System.out.println("当前元素" + key + "生成的数字为:" + hashKey);
 		System.out.println("-----系统找到的对应节点为：");
 		System.out.println(hash.lookUp(key));
